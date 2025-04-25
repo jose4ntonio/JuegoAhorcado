@@ -1,0 +1,10 @@
+sol
+luna
+arbol
+casa
+rio
+cielo
+nube
+estrella
+flor
+mesa

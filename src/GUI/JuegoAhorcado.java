@@ -1,0 +1,249 @@
+
+package GUI;
+
+import Hilos.Temporizador;
+import Logica.Palabras;
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.util.regex.Pattern;
+
+public class JuegoAhorcado extends JFrame {
+
+    private static final int WIDTH = 350;
+    private static final int HEIGHT = 450;
+    private String palabraSecreta;
+    private StringBuilder palabraOculta;
+    private int intentosFallidos = 0;
+    private final int MAX_INTENTOS = 9;
+    private JLabel lblPalabra, lblTiempo, lblMensaje;
+    private JTextField txtLetra;
+    private Temporizador temporizador;
+    private boolean juegoActivo = false;
+
+    public JuegoAhorcado() {
+        setTitle("Juego del Ahorcado");
+        setSize(WIDTH, HEIGHT);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        setLocationRelativeTo(null);
+        setLayout(new BorderLayout());
+
+        // Mostrar mensaje de bienvenida
+        mostrarMensajeBienvenida();
+
+        // Agregar listener para el evento de cierre de ventana
+        addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                JOptionPane.showMessageDialog(
+                    JuegoAhorcado.this,
+                    "¡Gracias por jugar al Juego del Ahorcado!",
+                    "Adiós",
+                    JOptionPane.INFORMATION_MESSAGE
+                );
+            }
+        });
+
+        // Panel para el dibujo
+        JPanel panelDibujo = new JPanel() {
+            @Override
+            protected void paintComponent(Graphics g) {
+                super.paintComponent(g);
+                dibujarAhorcado(g);
+            }
+        };
+        panelDibujo.setPreferredSize(new Dimension(WIDTH, 200));
+        panelDibujo.setBackground(new Color(135, 206, 235)); // Azul cielo
+
+        // Panel central
+        JPanel panelCentral = new JPanel(new GridLayout(4, 1));
+        panelCentral.setBackground(new Color(144, 238, 144)); // Verde suave
+        lblPalabra = new JLabel("", SwingConstants.CENTER);
+        lblPalabra.setFont(new Font("Arial", Font.BOLD, 24));
+        lblPalabra.setForeground(Color.BLACK);
+        lblTiempo = new JLabel("Tiempo: 60", SwingConstants.CENTER);
+        lblTiempo.setForeground(Color.BLACK);
+        lblMensaje = new JLabel("Ingresa una letra para comenzar", SwingConstants.CENTER);
+        lblMensaje.setForeground(Color.BLACK);
+        txtLetra = new JTextField(1);
+        txtLetra.setHorizontalAlignment(JTextField.CENTER);
+
+        panelCentral.add(lblPalabra);
+        panelCentral.add(lblTiempo);
+        panelCentral.add(lblMensaje);
+        panelCentral.add(txtLetra);
+
+        // Panel de botones
+        JPanel panelBotones = new JPanel();
+        panelBotones.setBackground(new Color(255, 255, 224)); // Amarillo claro
+        JButton btnIniciar = new JButton("Iniciar/Reiniciar");
+        btnIniciar.setBackground(Color.WHITE);
+        panelBotones.add(btnIniciar);
+
+        // Lambda para el botón de iniciar
+        btnIniciar.addActionListener(e -> iniciarJuego());
+
+        // Lambda para el campo de texto (al presionar Enter)
+        txtLetra.addActionListener(e -> procesarLetra());
+
+        add(panelDibujo, BorderLayout.NORTH);
+        add(panelCentral, BorderLayout.CENTER);
+        add(panelBotones, BorderLayout.SOUTH);
+    }
+
+    private void mostrarMensajeBienvenida() {
+        String mensaje = """
+            ¡Bienvenido al Juego del Ahorcado!
+            
+            Instrucciones:
+            - Adivina la palabra secreta ingresando una letra a la vez.
+            - Tienes 9 intentos antes de que el muñeco se complete.
+            - Dispones de 60 segundos por partida.
+            - Solo se aceptan letras de la 'a' a la 'z'.
+            - El juego usa palabras de 'palabras.txt', que puedes editar.
+            - Haz clic en 'Iniciar/Reiniciar' para comenzar.
+            
+            ¡Buena suerte! :)
+                         
+            Hecho por: José Antonio González Valle - 235621.
+                         _
+                         _
+            """;
+        JOptionPane.showMessageDialog(this, mensaje, "Bienvenido", JOptionPane.INFORMATION_MESSAGE);
+    }
+
+    private void iniciarJuego() {
+        palabraSecreta = Palabras.obtenerPalabraAleatoria();
+        palabraOculta = new StringBuilder("_".repeat(palabraSecreta.length()));
+        intentosFallidos = 0;
+        juegoActivo = true;
+        lblPalabra.setText(palabraOculta.toString());
+        lblMensaje.setText("Ingresa una letra");
+        txtLetra.setText("");
+        txtLetra.setEnabled(true);
+        if (temporizador != null) {
+            temporizador.detener();
+        }
+        temporizador = new Temporizador(lblTiempo, this::terminarJuego);
+        temporizador.start();
+        repaint();
+    }
+
+    private void procesarLetra() {
+        if (!juegoActivo) {
+            return;
+        }
+
+        String entrada = txtLetra.getText().trim().toLowerCase();
+        txtLetra.setText("");
+
+        // Validación con regex: solo una letra a-z
+        if (!Pattern.matches("[a-z]", entrada)) {
+            lblMensaje.setText("¡Ingresa solo una letra (a-z)!");
+            return;
+        }
+
+        char letra = entrada.charAt(0);
+        boolean acierto = false;
+
+        // Verificar si la letra está en la palabra
+        for (int i = 0; i < palabraSecreta.length(); i++) {
+            if (palabraSecreta.charAt(i) == letra) {
+                palabraOculta.setCharAt(i, letra);
+                acierto = true;
+            }
+        }
+
+        if (!acierto) {
+            intentosFallidos++;
+            lblMensaje.setText("Letra incorrecta. Intentos restantes: " + (MAX_INTENTOS - intentosFallidos));
+        } else {
+            lblMensaje.setText("¡Buen intento! Ingresa otra letra");
+        }
+
+        lblPalabra.setText(palabraOculta.toString());
+        repaint();
+
+        // Verificar fin del juego
+        if (palabraOculta.toString().equals(palabraSecreta)) {
+            terminarJuego(true);
+        } else if (intentosFallidos >= MAX_INTENTOS) {
+            terminarJuego(false);
+        }
+    }
+
+    private void terminarJuego(boolean gano) {
+        juegoActivo = false;
+        temporizador.detener();
+        txtLetra.setEnabled(false);
+        if (gano) {
+            lblMensaje.setText("¡Ganaste! La palabra era: " + palabraSecreta);
+        } else {
+            lblMensaje.setText("Perdiste. La palabra era: " + palabraSecreta);
+        }
+    }
+
+    private void dibujarAhorcado(Graphics g) {
+        // Dibujar fondo: sol
+        g.setColor(Color.YELLOW);
+        g.fillOval(20, 20, 40, 40); // Sol
+        g.setColor(new Color(255, 215, 0)); // Rayos más claros
+        for (int i = 0; i < 360; i += 45) {
+            double rad = Math.toRadians(i);
+            int x1 = 40 + (int)(20 * Math.cos(rad));
+            int y1 = 40 + (int)(20 * Math.sin(rad));
+            int x2 = 40 + (int)(30 * Math.cos(rad));
+            int y2 = 40 + (int)(30 * Math.sin(rad));
+            g.drawLine(x1, y1, x2, y2);
+        }
+
+        // Dibujar nubes de fondo
+        g.setColor(Color.WHITE);
+        // Nube 1 (izquierda)
+        g.fillOval(80, 40, 50, 30);
+        g.fillOval(100, 30, 50, 30);
+        g.fillOval(120, 40, 50, 30);
+        // Nube 2 (centro)
+        g.fillOval(250, 20, 50, 30);
+        g.fillOval(270, 10, 50, 30);
+        g.fillOval(290, 20, 50, 30);
+
+        // Dibujar ahorcado principal
+        g.setColor(Color.BLACK);
+        g.drawLine(100, 180, 200, 180); // Base horizontal
+        g.drawLine(150, 180, 150, 50);  // Poste vertical
+        g.drawLine(150, 50, 200, 50);   // Poste superior
+        g.drawLine(200, 50, 200, 70);   // Cuerda
+
+        if (intentosFallidos >= 1) { // Cabeza
+            g.drawOval(190, 70, 20, 20);
+        }
+        if (intentosFallidos >= 2) { // Ojos
+            g.fillOval(195, 78, 3, 3);
+            g.fillOval(202, 78, 3, 3);
+        }
+        if (intentosFallidos >= 3) { // Boca
+            g.drawArc(195, 83, 10, 5, 0, -180);
+        }
+        if (intentosFallidos >= 4) { // Cuerpo
+            g.drawLine(200, 90, 200, 130);
+        }
+        if (intentosFallidos >= 5) { // Brazo izquierdo
+            g.drawLine(200, 100, 180, 110);
+        }
+        if (intentosFallidos >= 6) { // Brazo derecho
+            g.drawLine(200, 100, 220, 110);
+        }
+        if (intentosFallidos >= 7) { // Detalles del torso (botones)
+            g.fillOval(198, 100, 4, 4);
+            g.fillOval(198, 110, 4, 4);
+            g.fillOval(198, 120, 4, 4);
+        }
+        if (intentosFallidos >= 8) { // Pierna izquierda
+            g.drawLine(200, 130, 180, 150);
+        }
+        if (intentosFallidos >= 9) { // Pierna derecha
+            g.drawLine(200, 130, 220, 150);
+        }
+    }
+}
