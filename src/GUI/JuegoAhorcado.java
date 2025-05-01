@@ -1,4 +1,3 @@
-
 package GUI;
 
 import Hilos.Temporizador;
@@ -9,7 +8,7 @@ import java.awt.event.*;
 import java.util.regex.Pattern;
 
 public class JuegoAhorcado extends JFrame {
-
+//eitaleeeeeeeeeeeee
     private static final int WIDTH = 350;
     private static final int HEIGHT = 450;
     private String palabraSecreta;
@@ -80,6 +79,7 @@ public class JuegoAhorcado extends JFrame {
         btnIniciar.setBackground(Color.WHITE);
         panelBotones.add(btnIniciar);
 
+        // Aquí están las expresiones lambda
         // Lambda para el botón de iniciar
         btnIniciar.addActionListener(e -> iniciarJuego());
 
