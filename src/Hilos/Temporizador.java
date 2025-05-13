@@ -9,13 +9,13 @@ public class Temporizador extends Thread {
     private volatile boolean activo = true; // Controla ejecución del hilo
     private int segundos = 60; // Tiempo inicial
 
-    // Hilo: Configura temporizador
+// ------ Hilo: Configura temporizador
     public Temporizador(JLabel lblTiempo, Consumer<Boolean> callback) {
         this.lblTiempo = lblTiempo; // Asigna etiqueta
         this.callback = callback; // Asigna callback
     }
 
-    // Hilo: Ejecuta conteo regresivo
+// ------ Hilo: Ejecuta conteo regresivo
     @Override
     public void run() {
         while (activo && segundos > 0) {
@@ -34,7 +34,7 @@ public class Temporizador extends Thread {
         }
     }
 
-    // Hilo: Detiene el temporizador
+// ------ Hilo: Detiene el temporizador
     public void detener() {
         activo = false; // Desactiva hilo
     }

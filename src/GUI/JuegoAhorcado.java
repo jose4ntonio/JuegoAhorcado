@@ -20,7 +20,7 @@ public class JuegoAhorcado extends JFrame {
     private Temporizador temporizador; // Hilo del temporizador
     private boolean juegoActivo = false; // Estado del juego
 
-    // GUI: Configura la ventana principal del juego
+// ------ GUI: Configura la ventana principal del juego
     public JuegoAhorcado() {
         setTitle("Juego del Ahorcado"); // Título de la ventana
         setSize(WIDTH, HEIGHT); // Tamaño de la ventana
@@ -44,7 +44,7 @@ public class JuegoAhorcado extends JFrame {
             }
         });
 
-        // GUI: Panel para dibujar el ahorcado
+// ------ GUI: Panel para dibujar el ahorcado
         JPanel panelDibujo = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -73,17 +73,17 @@ public class JuegoAhorcado extends JFrame {
         panelCentral.add(lblMensaje);
         panelCentral.add(txtLetra);
 
-        // GUI: Panel con botón de iniciar
+// ------ GUI: Panel con botón de iniciar
         JPanel panelBotones = new JPanel();
         panelBotones.setBackground(new Color(255, 255, 224)); // Fondo amarillo claro
         JButton btnIniciar = new JButton("Iniciar/Reiniciar"); // Botón para empezar
         btnIniciar.setBackground(Color.WHITE);
         panelBotones.add(btnIniciar);
 
-        // Expresión lambda: Inicia el juego al hacer clic
+    // ------  Expresión lambda: Inicia el juego al hacer clic
         btnIniciar.addActionListener(e -> iniciarJuego());
 
-        // Expresión lambda: Procesa letra al presionar Enter
+    // ------ Expresión lambda: Procesa letra al presionar Enter
         txtLetra.addActionListener(e -> procesarLetra());
 
         add(panelDibujo, BorderLayout.NORTH); // Panel dibujo arriba
@@ -91,7 +91,7 @@ public class JuegoAhorcado extends JFrame {
         add(panelBotones, BorderLayout.SOUTH); // Botones abajo
     }
 
-    // GUI: Muestra diálogo de bienvenida con animación
+// ------ GUI: Muestra diálogo de bienvenida con animación
     private void mostrarMensajeBienvenida() {
         // Crea ventana de bienvenida
         JDialog dialog = new JDialog(this, "Bienvenido", true);
@@ -116,7 +116,7 @@ public class JuegoAhorcado extends JFrame {
         JLabel labelAnimacion = new JLabel(imagenEscalada1); // Muestra imagen inicial
         panelAnimacion.add(labelAnimacion);
 
-        // Expresión lambda: Alterna imágenes cada segundo
+    // ------ Expresión lambda: Alterna imágenes cada segundo
         Timer timer = new Timer(1000, e -> {
             if (labelAnimacion.getIcon() == imagenEscalada1) {
                 labelAnimacion.setIcon(imagenEscalada2); // Cambia a imagen 2
@@ -150,7 +150,7 @@ public class JuegoAhorcado extends JFrame {
         textoBienvenida.setEditable(false); // No editable
         textoBienvenida.setFont(new Font("Arial", Font.BOLD, 12));
 
-        // Expresión lambda: Cierra diálogo al hacer clic en OK
+    // ------ Expresión lambda: Cierra diálogo al hacer clic en OK
         JButton btnOk = new JButton("OK");
         btnOk.addActionListener(e -> {
             timer.stop(); // Detiene animación
@@ -177,8 +177,8 @@ public class JuegoAhorcado extends JFrame {
         if (temporizador != null) {
             temporizador.detener(); // Detiene temporizador anterior
         }
-        // Hilo: Inicia temporizador
-        // Expresión lambda: Pasa método terminarJuego como callback
+// ------Hilo: Inicia temporizador
+// ------Expresión lambda: Pasa método terminarJuego como callback
         temporizador = new Temporizador(lblTiempo, this::terminarJuego); // Nuevo temporizador
         temporizador.start(); // Inicia temporizador
         repaint(); // Redibuja ahorcado
@@ -193,7 +193,7 @@ public class JuegoAhorcado extends JFrame {
         String entrada = txtLetra.getText().trim().toLowerCase(); // Obtiene letra
         txtLetra.setText(""); // Limpia campo
 
-        // Expresión regular: Valida que sea una letra a-z
+// ------ Expresión regular: Valida que sea una letra a-z
         if (!Pattern.matches("[a-z]", entrada)) {
             lblMensaje.setText("¡Ingresa solo una letra (a-z)!"); // Error si no es letra
             return;
