@@ -11,52 +11,44 @@ import java.util.List;
 import java.util.Random;
 
 public class Palabras {
-    private static final String ARCHIVO = "palabras.txt";
-    private static final Random random = new Random();
+    private static final String ARCHIVO = "palabras.txt"; // Nombre del archivo
+    private static final Random random = new Random(); // Generador de aleatorios
     private static final String[] PALABRAS_PREDETERMINADAS = {
-        "sol",
-        "luna",
-        "arbol",
-        "casa",
-        "rio",
-        "cielo",
-        "nube",
-        "estrella",
-        "flor",
-        "mesa"
-    };
+        "sol", "luna", "arbol", "casa", "rio",
+        "cielo", "nube", "estrella", "flor", "mesa"
+    }; // Palabras por defecto
 
+    // Obtiene una palabra aleatoria
     public static String obtenerPalabraAleatoria() {
         List<String> palabras = new ArrayList<>();
         
-        // Verificar si el archivo existe, si no, crearlo
+        // Manejo de archivo: Crea archivo si no existe
         File archivo = new File(ARCHIVO);
         if (!archivo.exists()) {
             try (BufferedWriter writer = new BufferedWriter(new FileWriter(archivo))) {
                 for (String palabra : PALABRAS_PREDETERMINADAS) {
-                    writer.write(palabra);
-                    writer.newLine();
+                    writer.write(palabra); // Escribe palabra
+                    writer.newLine(); // Nueva línea
                 }
             } catch (IOException e) {
-                e.printStackTrace();
-                // Si falla la creación, usar una palabra por defecto
-                return "error";
+                e.printStackTrace(); // Maneja error
+                return "error"; // Palabra por defecto
             }
         }
 
-        // Leer palabras del archivo
+        // Manejo de archivo: Lee palabras del archivo
         try (BufferedReader br = new BufferedReader(new FileReader(ARCHIVO))) {
             String linea;
             while ((linea = br.readLine()) != null) {
                 if (!linea.trim().isEmpty()) {
-                    palabras.add(linea.trim().toLowerCase());
+                    palabras.add(linea.trim().toLowerCase()); // Agrega palabra
                 }
             }
         } catch (IOException e) {
-            e.printStackTrace();
-            return "error"; // Palabra por defecto en caso de error
+            e.printStackTrace(); // Maneja error
+            return "error"; // Palabra por defecto
         }
 
-        return palabras.isEmpty() ? "java" : palabras.get(random.nextInt(palabras.size()));
+        return palabras.isEmpty() ? "java" : palabras.get(random.nextInt(palabras.size())); // Devuelve palabra aleatoria
     }
 }
